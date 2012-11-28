@@ -27,6 +27,6 @@ Feature: Merge Articles
 
   Scenario: A non-admin cannot merge two articles
     Given I am logged as a non-admin
+    And I am on the articles page
     When I follow "I love BDD"
     Then I should not see "Merge Articles"
-
