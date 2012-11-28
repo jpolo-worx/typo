@@ -41,9 +41,15 @@ Given /^the blog is set up$/ do
                 :profile_id => 1,
                 :name => 'admin',
                 :state => 'active'})
+  User.create!({:login => 'blogger1',
+                :password => 'blogger1',
+                :email => 'blogger1@localhost',
+                :profile_id => 2,
+                :name => 'blogger1',
+                :state => 'active'})
 end
 
-And /^I am logged into the admin panel$/ do
+And /^I am logged as an admin$/ do
   visit '/accounts/login'
   fill_in 'user_login', :with => 'admin'
   fill_in 'user_password', :with => 'aaaaaaaa'
@@ -53,6 +59,38 @@ And /^I am logged into the admin panel$/ do
   else
     assert page.has_content?('Login successful')
   end
+end
+
+And /^I am logged as a non-admin$/ do
+  visit '/accounts/login'
+  fill_in 'user_login', :with => 'blogger1'
+  fill_in 'user_password', :with => 'blogger1'
+  click_button 'Login'
+  if page.respond_to? :should
+    page.should have_content('Login successful')
+  else
+    assert page.has_content?('Login successful')
+  end
+end
+
+Given /^([^"]*) have created the article "([^\"]*)" with the content "([^\"]*)"$/ do |user, title, content|
+  Article.create!({:title => title,
+    :body => content,
+    :published_at => Time.now,
+    :user => User.find_by_login(user)})
+end
+
+Given /^a user have added "([^\"]*)" comment to the "([^\"]*)" article$/ do |body, title|
+  article = Article.find_by_title(title)
+  article.comments.create!({:body => body,
+    :author => "anonymous",
+    :email => "anonymous@bastards.com",
+    :article => article
+  })
+end
+
+When /^(?:|I )fill in "([^"]*)" with "([^"]*)" article id$/ do |field, value|
+  fill_in(field, :with => Article.find(:id => value).id)
 end
 
 # Single-line step scoper
