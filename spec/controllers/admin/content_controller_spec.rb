@@ -544,6 +544,11 @@ describe Admin::ContentController do
         Article.should_not be_exists({:id => draft.id})
         Article.should_not be_exists({:id => draft_2.id})
       end
+
+      it 'should render merge form view' do
+        get :edit, 'id' => @article.id
+        response.should render_template('_merge_form')
+      end
     end
 
     describe 'resource_add action' do
@@ -607,6 +612,28 @@ describe Admin::ContentController do
       end
     end
 
+    describe 'merge_with action' do
+      it 'should call the method of model that performs the merge' do
+        another_article = Factory(:article)
+
+        @article.should_receive(:merge_with).with(another_article.id)
+        Article.should_receive(:find).and_return(@article)
+        
+        post :merge, 'id' => @article_id, 'merge_with' => another_article.id
+      end
+
+      it 'should redirect to edit the new merged article' do
+        another_article = Factory(:article)
+        merged_article = Factory(:article)
+
+        @article.should_receive(:merge_with).with(another_article.id).and_return(merged_article)
+        Article.should_receive(:find).and_return(@article)
+        
+        post :merge, 'id' => @article.id, 'merge_with' => another_article.id
+        assert_response :redirect, :action => 'show', :id => merged_article.id
+      end
+    end
+
   end
 
   describe 'with publisher connection' do
@@ -657,6 +684,12 @@ describe Admin::ContentController do
           ActionMailer::Base.perform_deliveries = false
         end
       end
+
+      it 'should not render merge form view' do
+        get :edit, 'id' => @article.id
+        response.should_not render_template('_merge_form')
+      end
+
     end
 
     describe 'destroy action can be access' do
