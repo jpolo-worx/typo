@@ -7,7 +7,7 @@ Feature: Merge Articles
     Given the blog is set up
     And blogger1 have created the article "I love BDD" with the content "<p>I really love BDD</p>"
     And a user have added "Much thinking" comment to the "I love BDD" article
-    And a user have added "Much thinking" comment to the "I love BDD" article
+    And a user have added "Too much work" comment to the "I love BDD" article
     And blogger2 have created the article "Living with BDD" with the content "<p>How I started using cucumber</p>"
     And a user have added "That's a crap life" comment to the "Living with BDD" article
     
@@ -16,7 +16,7 @@ Feature: Merge Articles
     And I am on the articles page
     When I follow "I love BDD"
     Then I should see "Merge Articles"
-    When I fill in "article_id" with "Living with BDD" article id
+    When I fill in "merge_with" with "Living with BDD" article id
     And I press "Merge"
     Then the "article_body_and_extended" field should contain "<p>I really love BDD</p><p>How I started using cucumber</p>"
     When I go to "I love BDD"

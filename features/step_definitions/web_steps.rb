@@ -90,7 +90,8 @@ Given /^a user have added "([^\"]*)" comment to the "([^\"]*)" article$/ do |bod
 end
 
 When /^(?:|I )fill in "([^"]*)" with "([^"]*)" article id$/ do |field, value|
-  fill_in(field, :with => Article.find(:id => value).id)
+  article = Article.find_by_title(value)
+  fill_in(field, :with => article.id)
 end
 
 # Single-line step scoper
