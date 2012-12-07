@@ -637,6 +637,16 @@ describe Admin::ContentController do
         post :merge, 'id' => @article.id, 'merge_with' => another_article.id
         assert_response :redirect, :action => 'show', :id => merged_article.id
       end
+
+      it 'should redirect to index if the merge failed' do
+        another_article = Factory(:article)
+        
+        @article.should_receive(:merge_with).with(another_article.id).and_return(nil)
+        Article.should_receive(:find).and_return(@article)
+        
+        post :merge, 'id' => @article.id, 'merge_with' => another_article.id
+        assert_response :redirect, :action => 'index'
+      end
     end
 
   end
