@@ -215,6 +215,11 @@ describe Admin::ContentController do
         assigns(:article).redirects.count.should == 0
       end
 
+      it 'should no render the merge_form template' do
+        get :new
+        response.should_not render_template('_merge_form')
+      end
+
       it "correctly converts multi-word tags" do
         a = Factory(:article, :keywords => '"foo bar", baz')
         get :new, :id => a.id
