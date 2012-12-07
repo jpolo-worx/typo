@@ -421,22 +421,29 @@ class Article < Content
     merged_article = self.dup
     merged_article.id = nil
     merged_article.body = self.body + other_article.body
-    merged_article.save
-    self.comments.each {|c|
-      new_comment = c.dup
-      new_comment.id = nil
-      new_comment.article = merged_article
-      merged_article.comments << new_comment
-    }
-    other_article.comments.each {|c|
-      new_comment = c.dup
-      new_comment.id = nil
-      new_comment.article = merged_article
-      merged_article.comments << new_comment
-    }
-    self.destroy
-    other_article.destroy
-    return merged_article
+    merged_article.guid = nil
+    transaction do
+      merged_article.save!
+      self.comments.each {|c|
+        new_comment = c.dup
+        new_comment.id = nil
+        new_comment.article = merged_article
+        merged_article.comments << new_comment
+      }
+      other_article.comments.each {|c|
+        new_comment = c.dup
+        new_comment.id = nil
+        new_comment.article = merged_article
+        merged_article.comments << new_comment
+      }
+      self.destroy
+      other_article.destroy
+    end
+    if merged_article.id
+      return merged_article
+    else
+      return nil
+    end
   end
 
   protected
