@@ -419,10 +419,11 @@ class Article < Content
   def merge_with(other_article_id)
     return nil unless Article.exists?(other_article_id)    
     other_article = Article.find(other_article_id)
-    merged_article = self.dup
+    merged_article = Article.new(self.attributes)
     merged_article.id = nil
-    merged_article.body = self.body + other_article.body
     merged_article.guid = nil
+
+    merged_article.body = self.body + other_article.body
     transaction do
       merged_article.save!
       self.comments.each {|c|
