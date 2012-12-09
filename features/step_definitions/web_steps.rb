@@ -89,6 +89,10 @@ Given /^a user have added "([^\"]*)" comment to the "([^\"]*)" article$/ do |bod
   })
 end
 
+Given /^someone has created the category "([^\"]*)"$/ do |title|
+  Category.create!({:name => title})
+end
+
 When /^(?:|I )fill in "([^"]*)" with "([^"]*)" article id$/ do |field, value|
   article = Article.find_by_title(value)
   fill_in(field, :with => article.id)
@@ -99,6 +103,13 @@ When /^(?:|I )enter in the "(.+)" article$/ do |article_name|
   article_url = article_url['http:/localhost:3000'.size + 1..article_url.size]
   visit article_url
 end
+
+When /^(?:|I )select delete link for category "(.+)"$/ do |name|
+  category = Category.find_by_name(name)
+  path = "/admin/categories/destroy/#{category.id}"
+  visit path
+end
+
 
 # Single-line step scoper
 When /^(.*) within (.*[^:])$/ do |step, parent|

@@ -16,6 +16,28 @@ describe Admin::CategoriesController do
     assert_response :redirect, :action => 'index'
   end
 
+  describe "test_new" do
+    before(:each) do
+      get :new
+    end
+
+    it 'should render template new' do
+      assert_template 'new'
+      assert_tag :tag => "table",
+        :attributes => { :id => "category_container" }
+    end
+
+    it 'should invoke the models method to create a new category and save it' do
+      category = Factory(:category)
+
+      category.should_receive(:save!)
+      Category.should_receive(:new).and_return(category)
+      
+      post :new
+    end
+
+  end
+
   describe "test_edit" do
     before(:each) do
       get :edit, :id => Factory(:category).id
