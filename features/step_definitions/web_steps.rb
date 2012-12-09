@@ -94,6 +94,12 @@ When /^(?:|I )fill in "([^"]*)" with "([^"]*)" article id$/ do |field, value|
   fill_in(field, :with => article.id)
 end
 
+When /^(?:|I )enter in the "(.+)" article$/ do |article_name|
+  article_url = Article.find_by_title(article_name).permalink_url
+  article_url = article_url['http:/localhost:3000'.size + 1..article_url.size]
+  visit article_url
+end
+
 # Single-line step scoper
 When /^(.*) within (.*[^:])$/ do |step, parent|
   with_scope(parent) { When step }
