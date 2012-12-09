@@ -632,34 +632,41 @@ describe Article do
   end
 
   describe "merge article" do
-    before do
-      @a1 = Factory.create(:article)
-      @c_bodies = Array.new
-      @c_bodies << Factory.create(:comment, :article => @a1, :body => 'comment a1-1').body
-      @c_bodies << Factory.create(:comment, :article => @a1, :body => 'comment a1-2').body
-      @a2 = Factory.create(:article)
-      @c_bodies << Factory.create(:comment, :article => @a2, :body => 'comment a2-1').body
-      @am = @a1.merge_with(@a2.id)
+    describe "happy path" do
+      before do
+        @a1 = Factory.create(:article)
+        @c_bodies = Array.new
+        @c_bodies << Factory.create(:comment, :article => @a1, :body => 'comment a1-1').body
+        @c_bodies << Factory.create(:comment, :article => @a1, :body => 'comment a1-2').body
+        @a2 = Factory.create(:article)
+        @c_bodies << Factory.create(:comment, :article => @a2, :body => 'comment a2-1').body
+        @am = @a1.merge_with(@a2.id)
+      end
+      it "should return new article" do      
+        @am.should_not be == @a1
+        @am.should_not be == @a2
+        @am.id.should_not == @a1.id
+        @am.id.should_not == @a2.id
+      end
+      it "should have as author the author of the first article" do
+        @am.author.should be == @a1.author
+      end
+      it "should have as body the concatenation of both bodies" do
+        @am.body.should be == @a1.body + @a2.body
+      end
+      it "should have the comments of both articles" do
+        am_c_bodies = @am.comments.collect {|c| c.body}
+        @c_bodies.each{|cb| am_c_bodies.should include cb}
+      end
+      it "should delete the original articles" do
+        Article.exists?(@a1.id).should be_false
+        Article.exists?(@a2.id).should be_false
+      end
     end
-    it "should return new article" do      
-      @am.should_not be == @a1
-      @am.should_not be == @a2
-      @am.id.should_not == @a1.id
-      @am.id.should_not == @a2.id
-    end
-    it "should have as author the author of the first article" do
-      @am.author.should be == @a1.author
-    end
-    it "should have as body the concatenation of both bodies" do
-      @am.body.should be == @a1.body + @a2.body
-    end
-    it "should have the comments of both articles" do
-      am_c_bodies = @am.comments.collect {|c| c.body}
-      @c_bodies.each{|cb| am_c_bodies.should include cb}
-    end
-    it "should delete the original articles" do
-      Article.exists?(@a1.id).should be_false
-      Article.exists?(@a2.id).should be_false
+    it "should return nil when the other article doesn't exists" do
+      a1 = Factory.create(:article)
+      m = a1.merge_with(nil)
+      m.should_not be
     end
   end
 end
